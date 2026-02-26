@@ -6,7 +6,6 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
-// POST /api/v1/drops - Create a new drop (admin only)
 router.post(
   "/",
   auth("admin"),
@@ -14,10 +13,8 @@ router.post(
   DropController.createDrop
 );
 
-// GET /api/v1/drops - Get all active drops (with top 3 purchasers)
 router.get("/", DropController.getAllDrops);
 
-// GET /api/v1/drops/:id - Get a single drop by ID
 router.get("/:id", DropController.getDropById);
 
 export const DropRoutes = router;
