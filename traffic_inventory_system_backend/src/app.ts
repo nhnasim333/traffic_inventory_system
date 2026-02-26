@@ -22,7 +22,6 @@ app.use(
 // API routes
 app.use("/api/v1", router);
 
-// Health check
 app.get("/", (req: Request, res: Response) => {
   res.json({
     success: true,
