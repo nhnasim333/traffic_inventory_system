@@ -8,17 +8,6 @@ import config from "../../config";
 
 const RESERVATION_TTL_SECONDS = config.reservation_ttl_seconds;
 
-/**
- * Atomic Reservation System
- *
- * Uses PostgreSQL row-level locking via UPDATE ... WHERE available_stock > 0.
- * If 100 users click "Reserve" at the exact same millisecond for the last 1 item,
- * only 1 user will succeed because:
- *   1. PostgreSQL UPDATE acquires an exclusive row lock
- *   2. The WHERE clause (available_stock > 0) is re-evaluated after acquiring the lock
- *   3. After the first transaction commits (stock goes to 0), subsequent transactions
- *      will find available_stock = 0 and the UPDATE will affect 0 rows
- */
 const createReservation = async (userId: number, dropId: number) => {
   const transaction = await sequelize.transaction();
 

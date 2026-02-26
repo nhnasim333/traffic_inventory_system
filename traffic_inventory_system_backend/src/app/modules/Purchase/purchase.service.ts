@@ -4,16 +4,6 @@ import { Drop, Purchase, Reservation, User } from "../../db/models";
 import sequelize from "../../db/sequelize";
 import { getIO } from "../../socket";
 
-/**
- * Purchase Flow
- *
- * Users can only purchase an item they have currently reserved.
- * Upon purchase:
- *   1. The reservation is marked as "completed"
- *   2. The reserved_stock is decremented (stock permanently deducted)
- *   3. A purchase record is created
- *   4. All connected clients are notified via WebSocket
- */
 const createPurchase = async (userId: number, reservationId: number) => {
   const transaction = await sequelize.transaction();
 
