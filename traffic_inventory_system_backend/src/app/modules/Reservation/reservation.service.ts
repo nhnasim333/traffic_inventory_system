@@ -23,7 +23,6 @@ const createReservation = async (userId: number, dropId: number) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Check if user already has an active reservation for this drop
     const existingReservation = await Reservation.findOne({
       where: {
         userId,
@@ -42,8 +41,6 @@ const createReservation = async (userId: number, dropId: number) => {
       );
     }
 
-    // Atomic stock decrement with row-level locking
-    // This UPDATE will only succeed if available_stock > 0 and the drop is active
     const [affectedRows] = await Drop.update(
       {
         availableStock: sequelize.literal("available_stock - 1"),
@@ -68,7 +65,6 @@ const createReservation = async (userId: number, dropId: number) => {
       );
     }
 
-    // Create the reservation with TTL
     const expiresAt = new Date(Date.now() + RESERVATION_TTL_SECONDS * 1000);
     const reservation = await Reservation.create(
       {
@@ -82,7 +78,6 @@ const createReservation = async (userId: number, dropId: number) => {
 
     await transaction.commit();
 
-    // Broadcast stock update to all connected clients
     const updatedDrop = await Drop.findByPk(dropId);
     if (updatedDrop) {
       const io = getIO();
@@ -102,11 +97,10 @@ const createReservation = async (userId: number, dropId: number) => {
 
     return reservation;
   } catch (error) {
-    // Rollback only if transaction hasn't been committed or rolled back already
     try {
       await transaction.rollback();
-    } catch {
-      // Transaction already finished — ignore
+    } catch (error) {
+      // Transaction already finished
     }
     throw error;
   }

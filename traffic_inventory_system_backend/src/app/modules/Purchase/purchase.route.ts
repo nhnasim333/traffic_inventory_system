@@ -6,7 +6,6 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
-// POST /api/v1/purchases - Complete a purchase (authenticated users)
 router.post(
   "/",
   auth("user", "admin"),
@@ -14,7 +13,6 @@ router.post(
   PurchaseController.createPurchase
 );
 
-// GET /api/v1/purchases/my - Get current user's purchase history
 router.get(
   "/my",
   auth("user", "admin"),
