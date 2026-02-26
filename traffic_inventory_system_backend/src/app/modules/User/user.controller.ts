@@ -1,18 +1,14 @@
-/* eslint-disable no-unused-vars */
-
 import { UserServices } from "./user.service";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 
 const createUser = catchAsync(async (req, res) => {
-  const newUser = req.body;
-  const result = await UserServices.createUserIntoDB(newUser);
-  //   send response
+  const result = await UserServices.createUserIntoDB(req.body);
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
-    message: "User created successfully",
+    statusCode: httpStatus.CREATED,
+    message: "User registered successfully",
     data: result,
   });
 });
@@ -22,7 +18,7 @@ const loginUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "login successfully",
+    message: "Login successful",
     data: {
       accessToken: result,
     },

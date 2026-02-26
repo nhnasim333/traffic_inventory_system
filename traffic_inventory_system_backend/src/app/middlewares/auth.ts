@@ -5,18 +5,16 @@ import config from "../config";
 import AppError from "../errors/AppError";
 import catchAsync from "../utils/catchAsync";
 import { TUserRole } from "../modules/User/user.interface";
-import { User } from "../modules/User/user.model";
+import { User } from "../db/models";
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization?.replace("Bearer ", "");
 
-    // checking if the token is missing
     if (!token) {
       throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
     }
 
-    // checking if the given token is valid
     let decoded;
     try {
       decoded = jwt.verify(
@@ -24,20 +22,22 @@ const auth = (...requiredRoles: TUserRole[]) => {
         config.jwt_access_secret as string
       ) as JwtPayload;
     } catch (error) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid or expired token");
     }
 
-    const { role, email } = decoded;
+    const { userId, role } = decoded;
 
-    // checking if the user is exist
-    const user = await User.isUserExistsByEmail(email);
+    const user = await User.findByPk(userId);
 
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
+      throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
 
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
+    if (requiredRoles.length && !requiredRoles.includes(role)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You do not have permission to perform this action"
+      );
     }
 
     req.user = decoded as JwtPayload;

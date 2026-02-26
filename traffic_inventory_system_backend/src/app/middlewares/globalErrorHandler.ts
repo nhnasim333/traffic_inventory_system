@@ -2,16 +2,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
+import {
+  UniqueConstraintError,
+  ValidationError as SequelizeValidationError,
+  ForeignKeyConstraintError,
+} from "sequelize";
 import config from "../config";
-import handleZodError from "../errors/handleZodErroe";
-import handleValidationError from "../errors/handleValidationError";
+import handleZodError from "../errors/handleZodError";
+import {
+  handleSequelizeValidationError,
+  handleSequelizeUniqueConstraintError,
+  handleSequelizeForeignKeyError,
+} from "../errors/handleSequelizeError";
 import { TErrorSources } from "../interface/error";
-import handleCastError from "../errors/handleCastError";
-import handleDuplicateError from "../errors/handleDuplicateError";
 import AppError from "../errors/AppError";
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  // setting default values
   let statusCode = 500;
   let message = "Something went wrong";
   let errorSources: TErrorSources = [
@@ -26,46 +32,44 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources;
-  } else if (err?.name === "ValidationError") {
-    const simplifiedError = handleValidationError(err);
+  } else if (err instanceof UniqueConstraintError) {
+    const simplifiedError = handleSequelizeUniqueConstraintError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources;
-  } else if (err?.name === "CastError") {
-    const simplifiedError = handleCastError(err);
+  } else if (err instanceof SequelizeValidationError) {
+    const simplifiedError = handleSequelizeValidationError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources;
-  } else if (err?.code === 11000) {
-    const simplifiedError = handleDuplicateError(err);
+  } else if (err instanceof ForeignKeyConstraintError) {
+    const simplifiedError = handleSequelizeForeignKeyError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources;
   } else if (err instanceof AppError) {
-    statusCode = err?.statusCode;
-    message = err?.message;
+    statusCode = err.statusCode;
+    message = err.message;
     errorSources = [
       {
         path: "",
-        message: err?.message,
+        message: err.message,
       },
     ];
   } else if (err instanceof Error) {
-    message = err?.message;
+    message = err.message;
     errorSources = [
       {
         path: "",
-        message: err?.message,
+        message: err.message,
       },
     ];
   }
 
-  // actual return
   return res.status(statusCode).json({
     success: false,
     message,
     errorSources,
-    err,
     stack: config.NODE_ENV === "development" ? err?.stack : null,
   });
 };

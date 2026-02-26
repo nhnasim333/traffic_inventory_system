@@ -4,6 +4,7 @@ import config from "./app/config";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFount from "./app/middlewares/notFound";
 import router from "./app/routes";
+
 const app: Application = express();
 
 // parsers
@@ -12,15 +13,22 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "http://localhost:3000",
     ],
     credentials: true,
   })
 );
 
+// API routes
 app.use("/api/v1", router);
 
+// Health check
 app.get("/", (req: Request, res: Response) => {
-  res.send(`Traffic Inventory System Server Running on port ${config.port}`);
+  res.json({
+    success: true,
+    message: `Traffic Inventory System Server Running on port ${config.port}`,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // global error handler middleware

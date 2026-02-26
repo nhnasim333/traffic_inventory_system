@@ -1,32 +1,65 @@
 import httpStatus from "http-status";
+import bcrypt from "bcrypt";
 import AppError from "../../errors/AppError";
 import { TLoginUser, TUser } from "./user.interface";
-import { User } from "./user.model";
+import { User } from "../../db/models";
 import { createToken } from "./user.utils";
 import config from "../../config";
 
 const createUserIntoDB = async (payload: TUser) => {
-
-  if (await User.isUserExistsByEmail(payload.email)) {
-    throw new AppError(httpStatus.BAD_REQUEST, "This email already used");
+  // Check duplicate email
+  const existingEmail = await User.findOne({ where: { email: payload.email } });
+  if (existingEmail) {
+    throw new AppError(httpStatus.BAD_REQUEST, "This email is already in use");
   }
 
-  const result = await User.create(payload);
-  return result;
+  // Check duplicate username
+  const existingUsername = await User.findOne({
+    where: { username: payload.username },
+  });
+  if (existingUsername) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "This username is already taken"
+    );
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(
+    payload.password,
+    Number(config.bcrypt_salt_rounds)
+  );
+
+  const user = await User.create({
+    ...payload,
+    password: hashedPassword,
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { password, ...userWithoutPassword } = user.toJSON();
+  return userWithoutPassword;
 };
 
 const loginUser = async (payload: TLoginUser) => {
-  const user = await User.isUserExistsByEmail(payload.email);
+  const user = await User.findOne({ where: { email: payload.email } });
 
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
 
-  if (!(await User.isPasswordMatched(payload?.password, user?.password)))
-    throw new AppError(httpStatus.FORBIDDEN, "Password do not matched");
+  const isPasswordMatched = await bcrypt.compare(
+    payload.password,
+    user.password
+  );
+  if (!isPasswordMatched) {
+    throw new AppError(httpStatus.FORBIDDEN, "Password does not match");
+  }
 
   const jwtPayload = {
-    name: user.name,
+    userId: user.id,
+    username: user.username,
     email: user.email,
     role: user.role,
-    userId: user._id,
   };
 
   const accessToken = createToken(

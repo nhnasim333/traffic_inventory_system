@@ -1,8 +1,8 @@
 {
-  "name": "backend-setup",
+  "name": "traffic-inventory-system-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Real-Time High-Traffic Inventory System Backend",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --ignore-path .eslintignore --ext .ts",
@@ -19,12 +19,14 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "D": "^1.0.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.3",
+    "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5",
+    "socket.io": "^4.8.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
