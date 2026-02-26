@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import AppError from "../../errors/AppError";

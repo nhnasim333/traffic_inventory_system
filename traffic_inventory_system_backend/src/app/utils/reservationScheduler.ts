@@ -3,25 +3,11 @@ import { Reservation, Drop } from "../db/models";
 import sequelize from "../db/sequelize";
 import { getIO } from "../socket";
 
-/**
- * Stock Recovery Mechanism
- *
- * Runs every 10 seconds to check for expired reservations.
- * When a reservation expires:
- *   1. Mark its status as "expired"
- *   2. Return 1 unit back to available_stock
- *   3. Decrease reserved_stock by 1
- *   4. Broadcast stock update to all connected clients via WebSocket
- *
- * This ensures that items reserved but not purchased within the 60-second
- * window are automatically returned to the available pool.
- */
 export const startReservationExpiryChecker = () => {
-  const INTERVAL_MS = 10_000; // Check every 10 seconds
+  const INTERVAL_MS = 10_000;
 
   setInterval(async () => {
     try {
-      // Find all active reservations that have passed their expiry time
       const expiredReservations = await Reservation.findAll({
         where: {
           status: "active",
@@ -33,16 +19,13 @@ export const startReservationExpiryChecker = () => {
 
       if (expiredReservations.length === 0) return;
 
-      // Track which drops were affected so we can broadcast updates
       const affectedDropIds = new Set<number>();
 
       for (const reservation of expiredReservations) {
         const transaction = await sequelize.transaction();
         try {
-          // Mark reservation as expired
           await reservation.update({ status: "expired" }, { transaction });
 
-          // Restore stock: +1 available, -1 reserved
           await Drop.increment(
             { availableStock: 1 },
             { where: { id: reservation.dropId }, transaction }
@@ -55,7 +38,6 @@ export const startReservationExpiryChecker = () => {
           await transaction.commit();
           affectedDropIds.add(reservation.dropId);
 
-          // Emit per-reservation expiry event
           try {
             const io = getIO();
             io.emit("reservation:expired", {
@@ -63,13 +45,13 @@ export const startReservationExpiryChecker = () => {
               dropId: reservation.dropId,
               userId: reservation.userId,
             });
-          } catch {
-            // Socket not ready yet — skip
+          } catch (error) {
+            // Socket not ready yet
           }
         } catch (error) {
           try {
             await transaction.rollback();
-          } catch {
+          } catch (error) {
             // Already finished
           }
           // eslint-disable-next-line no-console
@@ -79,8 +61,6 @@ export const startReservationExpiryChecker = () => {
           );
         }
       }
-
-      // Broadcast stock updates for all affected drops
       for (const dropId of affectedDropIds) {
         try {
           const updatedDrop = await Drop.findByPk(dropId);
@@ -93,8 +73,8 @@ export const startReservationExpiryChecker = () => {
               totalStock: updatedDrop.totalStock,
             });
           }
-        } catch {
-          // Socket not ready yet — skip
+        } catch (error) {
+          // Socket not ready yet
         }
       }
 
