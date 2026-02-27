@@ -1,10 +1,64 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { selectCurrentUser, logout } from "@/redux/features/auth/authSlice";
+import { useSocket } from "@/hooks/useSocket";
+import { baseApi } from "@/redux/api/baseApi";
 
 const MainLayout = () => {
   const user = useSelector(selectCurrentUser);
   const dispatch = useDispatch();
+  const [stockMap, setStockMap] = useState({});
+
+  const onStockUpdate = useCallback((payload) => {
+    setStockMap((prev) => ({
+      ...prev,
+      [payload.dropId]: {
+        availableStock: payload.availableStock,
+        reservedStock: payload.reservedStock,
+        totalStock: payload.totalStock,
+      },
+    }));
+  }, []);
+
+  const onPurchaseCompleted = useCallback(
+    () => {
+      toast.info("Someone just purchased from a drop!");
+      dispatch(baseApi.util.invalidateTags(["drops", "purchases"]));
+    },
+    [dispatch]
+  );
+
+  const onReservationExpired = useCallback(
+    () => {
+      toast.info("A reservation has expired.");
+      dispatch(baseApi.util.invalidateTags(["reservations"]));
+    },
+    [dispatch]
+  );
+
+  const onDropCreated = useCallback(
+    (payload) => {
+      toast.success(`New drop just landed: ${payload.name}!`);
+      dispatch(baseApi.util.invalidateTags(["drops"]));
+    },
+    [dispatch]
+  );
+
+  const onReservationCreated = useCallback(() => {
+    dispatch(baseApi.util.invalidateTags(["reservations"]));
+  }, [dispatch]);
+
+  useSocket({
+    onStockUpdate,
+    onPurchaseCompleted,
+    onReservationExpired,
+    onDropCreated,
+    onReservationCreated,
+  });
+
+  // ---- end socket ----
 
   const handleLogout = () => {
     dispatch(logout());
@@ -57,7 +111,7 @@ const MainLayout = () => {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        <Outlet />
+        <Outlet context={{ stockMap }} />
       </main>
     </div>
   );

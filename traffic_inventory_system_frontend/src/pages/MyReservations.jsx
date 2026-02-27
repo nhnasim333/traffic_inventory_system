@@ -1,7 +1,5 @@
 import { useGetMyReservationsQuery } from "@/redux/features/reservations/reservationsApi";
-import { useSocket } from "@/hooks/useSocket";
 import { useCallback } from "react";
-import { toast } from "sonner";
 import ReservationTimer from "@/components/ReservationTimer";
 
 const MyReservations = () => {
@@ -9,17 +7,6 @@ const MyReservations = () => {
     undefined,
     { pollingInterval: 10000 }
   );
-
-  const onReservationExpired = useCallback(() => {
-    toast.info("A reservation has expired.");
-    refetch();
-  }, [refetch]);
-
-  const onStockUpdate = useCallback(() => {
-    // no-op — handled by dashboard
-  }, []);
-
-  useSocket({ onReservationExpired, onStockUpdate });
 
   const handleExpired = useCallback(() => {
     refetch();

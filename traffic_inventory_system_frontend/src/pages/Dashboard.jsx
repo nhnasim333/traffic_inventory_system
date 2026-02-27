@@ -1,51 +1,10 @@
 import { useGetDropsQuery } from "@/redux/features/drops/dropsApi";
-import { useSocket } from "@/hooks/useSocket";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useOutletContext } from "react-router-dom";
 import DropCard from "@/components/DropCard";
 
 const Dashboard = () => {
   const { data, isLoading, error, refetch } = useGetDropsQuery();
-  const [stockMap, setStockMap] = useState({});
-
-  const onStockUpdate = useCallback((payload) => {
-    setStockMap((prev) => ({
-      ...prev,
-      [payload.dropId]: {
-        availableStock: payload.availableStock,
-        reservedStock: payload.reservedStock,
-        totalStock: payload.totalStock,
-      },
-    }));
-  }, []);
-
-  const onPurchaseCompleted = useCallback(
-    // eslint-disable-next-line no-unused-vars
-    (payload) => {
-      toast.info(`Someone just purchased from a drop!`);
-      refetch();
-    },
-    [refetch]
-  );
-
-  const onReservationExpired = useCallback(() => {
-    // Stock will be updated via stock:update event
-  }, []);
-
-  const onDropCreated = useCallback(
-    (payload) => {
-      toast.success(`New drop just landed: ${payload.name}!`);
-      refetch();
-    },
-    [refetch]
-  );
-
-  useSocket({
-    onStockUpdate,
-    onPurchaseCompleted,
-    onReservationExpired,
-    onDropCreated,
-  });
+  const { stockMap } = useOutletContext();
 
   if (isLoading) {
     return (
