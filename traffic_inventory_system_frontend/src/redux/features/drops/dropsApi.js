@@ -2,14 +2,6 @@ import { baseApi } from "../../api/baseApi";
 
 const dropsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getDrops: builder.query({
-      query: () => ({ url: "/drops", method: "GET" }),
-      providesTags: ["drops"],
-    }),
-    getDropById: builder.query({
-      query: (id) => ({ url: `/drops/${id}`, method: "GET" }),
-      providesTags: (_result, _error, id) => [{ type: "drops", id }],
-    }),
     createDrop: builder.mutation({
       query: (data) => ({
         url: "/drops",
@@ -18,8 +10,16 @@ const dropsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["drops"],
     }),
+    getDrops: builder.query({
+      query: () => ({ url: "/drops", method: "GET" }),
+      providesTags: ["drops"],
+    }),
+    getDropById: builder.query({
+      query: (id) => ({ url: `/drops/${id}`, method: "GET" }),
+      providesTags: (_result, _error, id) => [{ type: "drops", id }],
+    }),
   }),
 });
 
-export const { useGetDropsQuery, useGetDropByIdQuery, useCreateDropMutation } =
+export const { useCreateDropMutation, useGetDropsQuery, useGetDropByIdQuery } =
   dropsApi;

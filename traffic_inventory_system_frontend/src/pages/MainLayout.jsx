@@ -58,8 +58,6 @@ const MainLayout = () => {
     onReservationCreated,
   });
 
-  // ---- end socket ----
-
   const handleLogout = () => {
     dispatch(logout());
   };
