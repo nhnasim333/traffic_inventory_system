@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "@/redux/features/auth/authSlice";
-
-const SOCKET_URL = "http://localhost:5000";
+// const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = "https://traffic-inventory-system-1bxi.onrender.com";
 
 export const useSocket = (callbacks = {}) => {
   const token = useSelector(selectCurrentToken);

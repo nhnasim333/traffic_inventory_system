@@ -6,9 +6,12 @@ let io: SocketIOServer;
 export const initializeSocket = (httpServer: HttpServer): SocketIOServer => {
   io = new SocketIOServer(httpServer, {
     cors: {
+      //  origin: [
+      //   "http://localhost:5173",
+      //   "http://localhost:3000",
+      // ],
       origin: [
-        "http://localhost:5173",
-        "http://localhost:3000",
+        "https://traffic-inventory-system.vercel.app",
       ],
       credentials: true,
     },
