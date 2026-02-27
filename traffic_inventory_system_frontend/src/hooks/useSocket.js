@@ -52,6 +52,10 @@ export const useSocket = (callbacks = {}) => {
       callbacksRef.current.onPurchaseCompleted?.(data);
     });
 
+    socket.on("drop:created", (data) => {
+      callbacksRef.current.onDropCreated?.(data);
+    });
+
     socket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason);
     });

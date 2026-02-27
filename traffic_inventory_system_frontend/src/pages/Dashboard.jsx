@@ -32,10 +32,19 @@ const Dashboard = () => {
     // Stock will be updated via stock:update event
   }, []);
 
+  const onDropCreated = useCallback(
+    (payload) => {
+      toast.success(`New drop just landed: ${payload.name}!`);
+      refetch();
+    },
+    [refetch]
+  );
+
   useSocket({
     onStockUpdate,
     onPurchaseCompleted,
     onReservationExpired,
+    onDropCreated,
   });
 
   if (isLoading) {

@@ -1,5 +1,6 @@
 import { Drop, Purchase, User } from "../../db/models";
 import { TCreateDrop } from "./drop.interface";
+import { getIO } from "../../socket";
 
 const createDrop = async (payload: TCreateDrop) => {
   const drop = await Drop.create({
@@ -10,6 +11,26 @@ const createDrop = async (payload: TCreateDrop) => {
     isActive: true,
     dropStartsAt: new Date(payload.dropStartsAt),
   });
+
+  try {
+    const io = getIO();
+    io.emit("drop:created", {
+      id: drop.id,
+      name: drop.name,
+      description: drop.description,
+      price: drop.price,
+      imageUrl: drop.imageUrl,
+      totalStock: drop.totalStock,
+      availableStock: drop.availableStock,
+      reservedStock: drop.reservedStock,
+      dropStartsAt: drop.dropStartsAt,
+      isActive: drop.isActive,
+      createdAt: drop.createdAt,
+    });
+  } catch {
+    // Socket not ready yet — ignore
+  }
+
   return drop;
 };
 
