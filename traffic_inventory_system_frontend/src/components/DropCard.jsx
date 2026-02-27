@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useCreateReservationMutation } from "@/redux/features/reservations/reservationsApi";
 
@@ -12,7 +12,29 @@ const DropCard = ({ drop, liveStock }) => {
   const totalStock = liveStock?.totalStock ?? drop.totalStock;
   const reservedStock = liveStock?.reservedStock ?? drop.reservedStock;
 
-  const isDropStarted = new Date(drop.dropStartsAt) <= new Date();
+
+  const [isDropStarted, setIsDropStarted] = useState(
+    () => new Date(drop.dropStartsAt) <= new Date()
+  );
+
+  useEffect(() => {
+    if (isDropStarted) return;
+
+    const msUntilStart =
+      new Date(drop.dropStartsAt).getTime() - Date.now();
+
+    if (msUntilStart <= 0) {
+      setIsDropStarted(true);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setIsDropStarted(true);
+    }, msUntilStart);
+
+    return () => clearTimeout(timer);
+  }, [drop.dropStartsAt, isDropStarted]);
+
   const isSoldOut = availableStock <= 0 && reservedStock <= 0;
 
   const handleReserve = async () => {
@@ -31,13 +53,11 @@ const DropCard = ({ drop, liveStock }) => {
     }
   };
 
-  // Stock bar percentage
   const stockPercent =
     totalStock > 0
       ? Math.round((availableStock / totalStock) * 100)
       : 0;
 
-  // Determine stock bar color
   const barColor =
     stockPercent > 50
       ? "bg-green-500"
@@ -45,12 +65,10 @@ const DropCard = ({ drop, liveStock }) => {
       ? "bg-yellow-500"
       : "bg-red-500";
 
-  // Top 3 purchasers (activity feed)
   const recentPurchasers = drop.purchases || [];
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-      {/* Image */}
       {drop.imageUrl && (
         <img
           src={drop.imageUrl}
@@ -60,7 +78,6 @@ const DropCard = ({ drop, liveStock }) => {
       )}
 
       <div className="p-4">
-        {/* Name + Price */}
         <div className="flex items-start justify-between mb-2">
           <h3 className="font-bold text-lg text-gray-800 leading-tight">
             {drop.name}
@@ -70,14 +87,12 @@ const DropCard = ({ drop, liveStock }) => {
           </span>
         </div>
 
-        {/* Description */}
         {drop.description && (
           <p className="text-gray-500 text-sm mb-3 line-clamp-2">
             {drop.description}
           </p>
         )}
 
-        {/* Live Stock Bar */}
         <div className="mb-3">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span>
@@ -93,7 +108,6 @@ const DropCard = ({ drop, liveStock }) => {
           </div>
         </div>
 
-        {/* Drop Start Status */}
         {!isDropStarted && (
           <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded mb-3 text-center">
             Drop starts:{" "}
@@ -101,7 +115,6 @@ const DropCard = ({ drop, liveStock }) => {
           </div>
         )}
 
-        {/* Reserve Button */}
         {isDropStarted && !isSoldOut && (
           <button
             onClick={handleReserve}
@@ -122,7 +135,6 @@ const DropCard = ({ drop, liveStock }) => {
           </div>
         )}
 
-        {/* Activity Feed — Top 3 Recent Purchasers */}
         {recentPurchasers.length > 0 && (
           <div className="mt-3 pt-3 border-t border-gray-100">
             <p className="text-xs font-medium text-gray-500 mb-1">
