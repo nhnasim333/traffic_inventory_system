@@ -24,7 +24,15 @@ export const startReservationExpiryChecker = () => {
       for (const reservation of expiredReservations) {
         const transaction = await sequelize.transaction();
         try {
-          await reservation.update({ status: "expired" }, { transaction });
+          // Conditional update — skip if already completed by purchase endpoint
+          const [affected] = await Reservation.update(
+            { status: "expired" },
+            { where: { id: reservation.id, status: "active" }, transaction }
+          );
+          if (affected === 0) {
+            await transaction.rollback();
+            continue;
+          }
 
           await Drop.increment(
             { availableStock: 1 },

@@ -12,6 +12,26 @@ const createReservation = async (userId: number, dropId: number) => {
   const transaction = await sequelize.transaction();
 
   try {
+    // Lock the Drop row first to serialize all reservation attempts for this drop
+    const drop = await Drop.findOne({
+      where: {
+        id: dropId,
+        isActive: true,
+        dropStartsAt: { [Op.lte]: new Date() },
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction,
+    });
+
+    if (!drop || drop.availableStock <= 0) {
+      await transaction.rollback();
+      throw new AppError(
+        httpStatus.CONFLICT,
+        "Item is out of stock or drop is not active yet"
+      );
+    }
+
+    // Now the duplicate check is safe — serialized by the Drop row lock
     const existingReservation = await Reservation.findOne({
       where: {
         userId,
