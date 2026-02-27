@@ -54,7 +54,7 @@ const CreateDrop = () => {
               {...register("name", { required: true })}
               id="name"
               type="text"
-              placeholder="e.g. Air Jordan 1 Retro High OG"
+              placeholder="Enter the name of the sneaker"
               required
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -142,7 +142,7 @@ const CreateDrop = () => {
               {...register("imageUrl")}
               id="imageUrl"
               type="url"
-              placeholder="https://example.com/sneaker.jpg"
+              placeholder="Enter an image URL for the sneaker"
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

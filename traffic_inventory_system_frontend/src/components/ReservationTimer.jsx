@@ -49,12 +49,10 @@ const ReservationTimer = ({ reservation, onExpired }) => {
     }
   };
 
-  // Timer display
   const minutes = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   const timerDisplay = `${minutes}:${secs.toString().padStart(2, "0")}`;
 
-  // Timer urgency color
   const timerColor =
     secondsLeft > 30
       ? "text-green-600"
@@ -110,7 +108,6 @@ const ReservationTimer = ({ reservation, onExpired }) => {
         </span>
       </div>
 
-      {/* Progress bar for timer */}
       <div className="w-full bg-gray-200 rounded-full h-1.5 mb-3">
         <div
           className={`h-1.5 rounded-full transition-all duration-1000 ${

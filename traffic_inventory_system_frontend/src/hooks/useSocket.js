@@ -5,19 +5,11 @@ import { selectCurrentToken } from "@/redux/features/auth/authSlice";
 
 const SOCKET_URL = "http://localhost:5000";
 
-/**
- * Custom hook that connects to the backend Socket.io server and
- * dispatches real-time events (stock updates, reservation expired, purchase completed)
- * back through RTK Query cache updates.
- *
- * @param {object} callbacks - { onStockUpdate, onReservationExpired, onPurchaseCompleted, onReservationCreated }
- */
 export const useSocket = (callbacks = {}) => {
   const token = useSelector(selectCurrentToken);
   const socketRef = useRef(null);
   const callbacksRef = useRef(callbacks);
 
-  // Keep callbacks ref in sync without re-connecting
   useEffect(() => {
     callbacksRef.current = callbacks;
   }, [callbacks]);

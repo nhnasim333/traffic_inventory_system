@@ -7,7 +7,6 @@ const DropCard = ({ drop, liveStock }) => {
   const [createReservation, { isLoading }] = useCreateReservationMutation();
   const [justReserved, setJustReserved] = useState(false);
 
-  // Use live stock from WebSocket if available, else fall back to API data
   const availableStock = liveStock?.availableStock ?? drop.availableStock;
   const totalStock = liveStock?.totalStock ?? drop.totalStock;
   const reservedStock = liveStock?.reservedStock ?? drop.reservedStock;
