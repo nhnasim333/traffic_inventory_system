@@ -30,10 +30,10 @@ Sequelize auto-syncs all tables on server start (`sync({ alter: true })`), so no
 
 The tables created are:
 
-- **users** - id, username, email, password, role
-- **drops** - id, name, description, price, imageUrl, totalStock, availableStock, reservedStock, dropStartsAt, isActive
-- **reservations** - id, userId, dropId, status (active/expired/completed), expiresAt
-- **purchases** - id, userId, dropId, reservationId (unique)
+- **users** : id, username, email, password, role
+- **drops** : id, name, description, price, imageUrl, totalStock, availableStock, reservedStock, dropStartsAt, isActive
+- **reservations** : id, userId, dropId, status (active/expired/completed), expiresAt
+- **purchases** : id, userId, dropId, reservationId (unique)
 
 ### 2. Backend
 
