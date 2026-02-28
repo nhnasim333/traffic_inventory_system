@@ -4,7 +4,7 @@ A real-time inventory management system for limited edition sneaker drops. Users
 
 **Live Demo:** [Frontend (Vercel)](https://traffic-inventory-system.vercel.app) | [Backend (Render)](https://traffic-inventory-system-1bxi.onrender.com)
 
-**Video Demo:**
+**Video Demo:** https://www.awesomescreenshot.com/video/49922427?key=abe658c6c2369a2f910875845a44fb5f
 
 ---
 
@@ -114,7 +114,7 @@ Every connected browser receives these events instantly, so the dashboard update
 
 ## Deployment Note: Why Backend is on Render, Not Vercel
 
-This application relies on **WebSockets (Socket.io)** for real-time stock updates across all connected browsers. Vercel uses **serverless functions** for backend routes, which have a key limitation: **serverless functions are stateless and short-lived** — they spin up per request and shut down immediately after responding. WebSockets require a **persistent, long-lived connection** between the server and client, which serverless functions cannot maintain.
+This application relies on **WebSockets (Socket.io)** for real-time stock updates across all connected browsers. Vercel uses **serverless functions** for backend routes, which have a key limitation: **serverless functions are stateless and short-lived** - they spin up per request and shut down immediately after responding. WebSockets require a **persistent, long-lived connection** between the server and client, which serverless functions cannot maintain.
 
 Additionally, the backend runs a **background scheduler** (every 10 seconds) to expire reservations and return stock. Serverless functions cannot run background tasks - they only execute in response to incoming HTTP requests.
 
