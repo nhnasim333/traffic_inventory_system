@@ -30,10 +30,10 @@ Sequelize auto-syncs all tables on server start (`sync({ alter: true })`), so no
 
 The tables created are:
 
-- **users** — id, username, email, password, role
-- **drops** — id, name, description, price, imageUrl, totalStock, availableStock, reservedStock, dropStartsAt, isActive
-- **reservations** — id, userId, dropId, status (active/expired/completed), expiresAt
-- **purchases** — id, userId, dropId, reservationId (unique)
+- **users** - id, username, email, password, role
+- **drops** - id, name, description, price, imageUrl, totalStock, availableStock, reservedStock, dropStartsAt, isActive
+- **reservations** - id, userId, dropId, status (active/expired/completed), expiresAt
+- **purchases** - id, userId, dropId, reservationId (unique)
 
 ### 2. Backend
 
@@ -109,3 +109,15 @@ All stock changes are broadcast in real-time via Socket.io to every connected br
 - `drop:created` - sent when a new drop is added
 
 Every connected browser receives these events instantly, so the dashboard updates live without polling or page reload.
+
+---
+
+## Deployment Note: Why Backend is on Render, Not Vercel
+
+This application relies on **WebSockets (Socket.io)** for real-time stock updates across all connected browsers. Vercel uses **serverless functions** for backend routes, which have a key limitation: **serverless functions are stateless and short-lived** — they spin up per request and shut down immediately after responding. WebSockets require a **persistent, long-lived connection** between the server and client, which serverless functions cannot maintain.
+
+Additionally, the backend runs a **background scheduler** (every 10 seconds) to expire reservations and return stock. Serverless functions cannot run background tasks - they only execute in response to incoming HTTP requests.
+
+Because of these two requirements (WebSockets + background scheduler), the backend is deployed on **Render**, which provides a traditional long-running server process that supports both.
+
+**Summary:** Frontend on Vercel, Backend on Render, Database on Neon - each platform chosen for what it does best.
