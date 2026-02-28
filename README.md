@@ -26,12 +26,6 @@ A real-time inventory management system for limited edition sneaker drops. Users
 
 ### 1. Database Setup
 
-```bash
-psql -U postgres
-CREATE DATABASE traffic_inventory_system;
-\q
-```
-
 Sequelize auto-syncs all tables on server start (`sync({ alter: true })`), so no manual SQL schema is needed.
 
 The tables created are:
