@@ -123,7 +123,7 @@ const DropCard = ({ drop, liveStock }) => {
             {isLoading
               ? "Reserving..."
               : justReserved
-              ? "✓ Reserved — Go to My Reservations"
+              ? "Reserved - Go to My Reservations"
               : "Reserve Now"}
           </button>
         )}

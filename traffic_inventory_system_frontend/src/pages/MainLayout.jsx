@@ -85,11 +85,9 @@ const MainLayout = () => {
               <NavLink to="/purchases" className={linkClass}>
                 My Purchases
               </NavLink>
-              {user?.role === "admin" && (
-                <NavLink to="/create-drop" className={linkClass}>
-                  + Create Drop
-                </NavLink>
-              )}
+              <NavLink to="/create-drop" className={linkClass}>
+                + Create Drop
+              </NavLink>
             </div>
           </div>
           <div className="flex items-center gap-4">

@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin"),
+  auth("admin", "user"),
   validateRequest(DropZodValidations.createDropValidationSchema),
   DropController.createDrop
 );

@@ -11,4 +11,5 @@ export default {
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
   jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || "30d",
   reservation_ttl_seconds: Number(process.env.RESERVATION_TTL_SECONDS) || 60,
+  frontend_url: process.env.FRONTEND_URL || "http://localhost:5173",
 };
